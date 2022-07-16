@@ -4,6 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "start": "yarn build && node ./dist/app.js",
+    "build": "tsc",
     "test": "ts-node app.ts"
   },
   "dependencies": {
