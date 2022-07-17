@@ -10,8 +10,6 @@ client.on("ready", (clt) => {
   console.log("Logined:", clt.user.username)
 })
 
-// dSjofajoafeafsddafsadsffadfdsaffasdojefsialsfgff
-
 client.on("messageCreate", (message) => {
   if (message.author.bot) return
   if (!message.guild) return
