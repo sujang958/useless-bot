@@ -7,7 +7,7 @@ const client = new Client({
 })
 
 client.on("ready", (clt) => {
-  console.log(clt.user.username)
+  console.log("Logined:", clt.user.username)
 })
 
 client.on("messageCreate", (message) => {
