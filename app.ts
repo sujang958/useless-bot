@@ -14,11 +14,13 @@ client.on("messageCreate", (message) => {
   if (message.author.bot) return
   if (!message.guild) return
 
-  if (message.channelId == "997829841275600986")
-    message.reply({
-      content: "ㅗ",
-      allowedMentions: { parse: [] },
-    })
+  if (message.channelId !== "997829841275600986") return
+
+  message.react("🖕")
+  message.reply({
+    content: "ㅗ",
+    allowedMentions: { parse: [] },
+  })
 })
 
 client.login(process.env.BOT_TOKEN)
