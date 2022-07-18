@@ -47,6 +47,18 @@ client.on("messageCreate", async (message) => {
     return
   }
 
+  if (message.content.startsWith("!ㅗ삭제")) {
+    await collection.deleteOne({
+      guildId: message.guildId,
+    })
+    message.react("🖕")
+    message.reply({
+      content: "완료",
+      allowedMentions: { parse: [] },
+    })
+    return
+  }
+
   const list = await collection.find().toArray()
 
   if (
