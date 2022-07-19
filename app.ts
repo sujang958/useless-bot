@@ -4,6 +4,7 @@ import { Client, Intents } from "discord.js"
 import { collection, DBClient } from "./database"
 import { CommandFile } from "./typings/command"
 import { readdirSync } from "fs"
+import { join } from "path"
 
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
@@ -14,9 +15,10 @@ client.on("ready", (clt) => {
 })
 
 const commands = new Map<string, CommandFile>()
+const commandsDirectory = join(__dirname, "commands/")
 
-for (const file of readdirSync("./commands/")) {
-  const commandFile = require(`./commands/${file}`) as CommandFile
+for (const file of readdirSync(commandsDirectory)) {
+  const commandFile = require(join(commandsDirectory, file)) as CommandFile
   commands.set(commandFile.name, commandFile)
 }
 
