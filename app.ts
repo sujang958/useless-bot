@@ -1,11 +1,9 @@
 import "dotenv/config"
 
 import { Client, Intents } from "discord.js"
-import { MongoClient } from "mongodb"
-
-const DBClient = new MongoClient(
-  `mongodb://sujang:${process.env.DB_PW}@cluster0-shard-00-00.qcdis.mongodb.net:27017,cluster0-shard-00-01.qcdis.mongodb.net:27017,cluster0-shard-00-02.qcdis.mongodb.net:27017/?ssl=true&replicaSet=atlas-9jt0g9-shard-0&authSource=admin&retryWrites=true&w=majority`
-)
+import { collection, DBClient } from "./database"
+import { CommandFile } from "./typings/command"
+import { readdirSync } from "fs"
 
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
@@ -15,48 +13,28 @@ client.on("ready", (clt) => {
   console.log("Logined:", clt.user.username)
 })
 
+const commands = new Map<string, CommandFile>()
+
+for (const file of readdirSync("./commands/")) {
+  const commandFile = require(`./commands/${file}`) as CommandFile
+  commands.set(commandFile.name, commandFile)
+}
+
+console.log("Loaded commands")
+
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return
   if (!message.guild) return
 
-  const collection = DBClient.db("usl").collection("usls")
+  if (message.content.startsWith("!")) {
+    const args = message.content.replace("!", "").split(" ")
+    const command = args.shift()
+    if (!command) return
 
-  if (message.content.startsWith("!ㅗ설정 ")) {
-    const setId = message.content
-      .split("!ㅗ설정 ")[1]
-      .replace("<#", "")
-      .replace(">", "")
+    const commandFile = commands.get(command)
+    if (!commandFile) return
 
-    await collection.updateOne(
-      {
-        guildId: message.guildId,
-      },
-      {
-        $set: {
-          guildId: message.guildId,
-          channelId: setId,
-        },
-      },
-      { upsert: true }
-    )
-    message.react("🖕")
-    message.reply({
-      content: "완료",
-      allowedMentions: { parse: [] },
-    })
-    return
-  }
-
-  if (message.content.startsWith("!ㅗ삭제")) {
-    await collection.deleteOne({
-      guildId: message.guildId,
-    })
-    message.react("🖕")
-    message.reply({
-      content: "완료",
-      allowedMentions: { parse: [] },
-    })
-    return
+    commandFile.run(message)
   }
 
   const list = await collection.find().toArray()
